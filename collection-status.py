@@ -31,8 +31,6 @@ def main():
     
     okay = 0
 
-    # output , err = Popen(["sudo", "duply", args.profile, "status"], stdout=PIPE, stderr=PIPE , env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
-    
     #os.system('./freshness.sh')
 
     #f = open ('/tmp/tmp.q5Mqui6nVr/backupout.amDtCIcW', 'r')

@@ -151,12 +151,12 @@ function mangle_cli(){
    precmd=
    if [ -n "$tmpdir" ]; then
       if [ ! -d "$tmpdir" ]; then
-         info "Temporary directory ($tmpdir) does not exist, creating it."
+         #info "Temporary directory ($tmpdir) does not exist, creating it."
          mkdir -p "$tmpdir"
          [ $? -eq 0 ] || fatal "Could not create temporary directory ($tmpdir)."
          chmod 0700 "$tmpdir"
       fi
-      info "Using $tmpdir as TMPDIR"
+      #info "Using $tmpdir as TMPDIR"
       precmd="${precmd}TMPDIR=$tmpdir "
    fi
    
