@@ -31,20 +31,24 @@ def main():
     
     okay = 0
 
-    #os.system('./freshness.sh')
-
     #f = open ('/tmp/tmp.q5Mqui6nVr/backupout.amDtCIcW', 'r')
     #output = f.read()
     
     # *sigh* check_output is from python 2.7 and onwards. Debian, upgrade yourself.
     #output , err = check_output(['/root/freshness.sh'])
-    checkstatus, err = Popen(['/bin/bash', '/root/freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
+
+    if os.path.isfile("/usr/lib/nagios/plugins/check_duplicity_freshness.sh") and os.access("/usr/lib/nagios/plugins/check_duplicity_freshness.sh", os.X_OK):
+      checkstatus, err = Popen(['/bin/bash', '/usr/lib/nagios/plugins/check_duplicity_freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
+    elif os.path.isfile("/usr/local/lib/nagios/plugins/check_duplicity_freshness.sh") and os.access("/usr/local/lib/nagios/plugins/check_duplicity_freshness.sh", os.X_OK):
+      checkstatus, err = Popen(['/bin/bash', '/usr/local/lib/nagios/plugins/check_duplicity_freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
+
+    # Don't use exec(), popen(), etc. to execute external commands without explicity using the full path of the external program.  Hijacked search path could be problematic.
+    #checkstatus, err = Popen(['/bin/bash', './freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
 
     f = open (checkstatus)
     output = f.read()
 
     lastfull, lastinc = findlastdates(output)
-
 
     sincelastfull = time.time() - lastfull 
     sincelastinc  =  time.time() - lastinc 
@@ -62,7 +66,6 @@ def main():
     if not checkoutput(output):
         okay = max(okay,1)
         msg = "WARNING: duplicity output: %s " % repr(output)
-
 
     if err:
         okay=2
@@ -97,7 +100,6 @@ def findlastdates(output):
         # ['Incremental', 'Sun', 'Oct', '31', '03:00:04', '2010', '1']
         if len (parts) == 7 and parts[0] in ["Full","Incremental"]:
             foo = time.strptime(" ".join(parts[1:6]),"%a %b %d %H:%M:%S %Y")
-
     
             backuptime =  time.mktime(foo)
     
