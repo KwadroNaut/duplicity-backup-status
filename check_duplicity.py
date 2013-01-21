@@ -37,10 +37,10 @@ def main():
     # *sigh* check_output is from python 2.7 and onwards. Debian, upgrade yourself.
     #output , err = check_output(['/root/freshness.sh'])
 
-    if os.path.isfile("/usr/lib/nagios/plugins/check_duplicity_freshness.sh") and os.access("/usr/lib/nagios/plugins/check_duplicity_freshness.sh", os.X_OK):
-      checkstatus, err = Popen(['/bin/bash', '/usr/lib/nagios/plugins/check_duplicity_freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
-    elif os.path.isfile("/usr/local/lib/nagios/plugins/check_duplicity_freshness.sh") and os.access("/usr/local/lib/nagios/plugins/check_duplicity_freshness.sh", os.X_OK):
-      checkstatus, err = Popen(['/bin/bash', '/usr/local/lib/nagios/plugins/check_duplicity_freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
+    if os.path.isfile("/usr/lib/nagios/plugins/duplicity_freshness.sh") and os.access("/usr/lib/nagios/plugins/duplicity_freshness.sh", os.X_OK):
+      checkstatus, err = Popen(['/bin/bash', '/usr/lib/nagios/plugins/duplicity_freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
+    elif os.path.isfile("/usr/local/lib/nagios/plugins/duplicity_freshness.sh") and os.access("/usr/local/lib/nagios/plugins/duplicity_freshness.sh", os.X_OK):
+      checkstatus, err = Popen(['/bin/bash', '/usr/local/lib/nagios/plugins/duplicity_freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
 
     # Don't use exec(), popen(), etc. to execute external commands without explicity using the full path of the external program.  Hijacked search path could be problematic.
     #checkstatus, err = Popen(['/bin/bash', './freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
