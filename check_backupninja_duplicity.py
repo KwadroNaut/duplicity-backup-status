@@ -13,27 +13,20 @@ import getopt
 
 def main():
     # getopt = much more writing
-
     parser = argparse.ArgumentParser(description='Nagios Duplicity status checker')
 
     parser.add_argument("-w", dest="warninc", default=28, type=int, 
-                        help="Number of hours allowed for incremential backup warning level")
-    parser.add_argument("-W", dest="warnfull", default=40, type=int, 
-                        help="Number of hours allowed for incremential backup critical level")
-
+                        help="Number of hours allowed for incremential backup warning level, default 28")
+    parser.add_argument("-W", dest="warnfull", default=31, type=int, 
+                        help="Number of days allowed for full backup warning level, default 31")
     parser.add_argument("-c", dest="critinc", default=52, type=int, 
-                        help="Number of days allowed for full backup warning level")
-
-    parser.add_argument("-C", dest="critfull", default=60, type=int, 
-                        help="Number of days allowed for full backup critical level")
-
+                        help="Number of hours allowed for incremential backup critical level, default 52")
+    parser.add_argument("-C", dest="critfull", default=33, type=int, 
+                        help="Number of days allowed for full backup critical level, default 33")
     args = parser.parse_args()
     
     okay = 0
 
-    #f = open ('/tmp/tmp.q5Mqui6nVr/backupout.amDtCIcW', 'r')
-    #output = f.read()
-    
     # *sigh* check_output is from python 2.7 and onwards. Debian, upgrade yourself.
     #output , err = check_output(['/root/freshness.sh'])
 
@@ -45,8 +38,20 @@ def main():
     # Don't use exec(), popen(), etc. to execute external commands without explicity using the full path of the external program.  Hijacked search path could be problematic.
     #checkstatus, err = Popen(['/bin/bash', './freshness.sh'], stdout=PIPE, stderr=PIPE, env={'HOME': '/root', 'PATH': os.environ['PATH']}).communicate()
 
-    f = open (checkstatus)
-    output = f.read()
+    #another sigh: Debian testing, upgrade yourself, this is only needed because Debian testing uses duplicity 0.6.18-3 
+    # open file read/write
+    f = open (checkstatus,"r")
+    checklines = f.readlines()
+    f.close()
+
+    # remove the line that says Import of duplicity.backends.giobackend Failed: No module named gio
+    f = open(checkstatus,"w")
+    for line in checklines:
+      if not 'Import of duplicity.backends.giobackend Failed: No module named gio' in line:
+        f.write(line)
+    f.close()
+
+    output = open(checkstatus).read()
 
     lastfull, lastinc = findlastdates(output)
 
@@ -58,26 +63,26 @@ def main():
     if sincelastfull > (args.warnfull * 24 * 3600) or sincelastinc > (args.warninc * 3600):
         okay = 1
         msg = "WARNING: "
-    
     if sincelastfull > (args.critfull * 24 * 3600) or sincelastinc > (args.critinc * 3600):
         okay = 2
         msg = "CRITICAL: "
-
     if not checkoutput(output):
         okay = max(okay,1)
         msg = "WARNING: duplicity output: %s " % repr(output)
-
     if err:
         okay=2
         msg = "Unexpected output: %s, " % repr(err)
 
     print msg, "last full %s ago, last incremential %s ago|lastfull=%d, lastinc=%d" % ( formattime(sincelastfull), formattime(sincelastinc), sincelastfull, sincelastinc)
+    
+    #clean up cruft
+    os.remove(checkstatus)
     sys.exit(okay)
 
 def checkoutput(output):
-    if output.find("No orphaned or incomplete backup sets found.")==-1:
+    if not 'No orphaned or incomplete backup sets found.' in output:
         return False
-
+    
     return True
 
 def formattime(seconds):
@@ -91,7 +96,7 @@ def formattime(seconds):
 
 
 def findlastdates(output):
-    lastfull =0
+    lastfull = 0
     lastinc = 0
 
     for line in output.split("\n"):

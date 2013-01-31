@@ -1,3 +1,4 @@
+#!/bin/bash
 # -*- mode: sh; sh-basic-offset: 3; indent-tabs-mode: nil; -*-
 # vim: set filetype=sh sw=3 sts=3 expandtab autoindent:
 
@@ -192,34 +193,34 @@ function mangle_cli(){
    fi
 }
 
-function findlastdates(){
-   outputfile=$1
-   lastfull=0
-   lastinc=0
-   backuptime=0
-   
-   while read line; do
-      atime=0
-      arr=()
-      sort=''
-      test=$(echo $line|awk '{if (NF == 7); if ($1 == "Full" || $1 == "Incremental") {print $4, $3, $6, $5}}'  )
-   
-      if [ -n "$test"  ]; then
-         backuptime=$(date -u -d "$test" +%s)
-   
-         arr=($(echo $line|awk '{print $1, $2, $3, $4, $5, $6}'))
-         if [ ${arr[0]} == "Incremental" ] && [ "$lastinc" -lt "$backuptime" ] ; then
-            lastinc=$backuptime
-         elif [ ${arr[0]} == "Full" ] && [ "$lastfull" -lt "$backuptime" ] ; then
-            lastfull=$backuptime
-         fi
-   
-      fi
-   
-   done < $outputfile
-      # a full backup can be seen as incremental too
-      lastinc=$(echo $lastinc | awk 'max=="" || $1 > max {max=$1} END{ print max}')
-}
+#function findlastdates(){
+#   outputfile=$1
+#   lastfull=0
+#   lastinc=0
+#   backuptime=0
+#   
+#   while read line; do
+#      atime=0
+#      arr=()
+#      sort=''
+#      test=$(echo $line|awk '{if (NF == 7); if ($1 == "Full" || $1 == "Incremental") {print $4, $3, $6, $5}}'  )
+#   
+#      if [ -n "$test"  ]; then
+#         backuptime=$(date -u -d "$test" +%s)
+#   
+#         arr=($(echo $line|awk '{print $1, $2, $3, $4, $5, $6}'))
+#         if [ ${arr[0]} == "Incremental" ] && [ "$lastinc" -lt "$backuptime" ] ; then
+#            lastinc=$backuptime
+#         elif [ ${arr[0]} == "Full" ] && [ "$lastfull" -lt "$backuptime" ] ; then
+#            lastfull=$backuptime
+#         fi
+#   
+#      fi
+#   
+#   done < $outputfile
+#      # a full backup can be seen as incremental too
+#      lastinc=$(echo $lastinc | awk 'max=="" || $1 > max {max=$1} END{ print max}')
+#}
 
 function check_status() {
    grep -q 'No orphaned or incomplete backup sets found.' $1
@@ -244,7 +245,6 @@ function process_action() {
    export FTP_PASSWORD=$ftp_password
    output=` su -c \
             "$execstr_precmd duplicity $execstr_options collection-status $execstr_serverpart >$outputfile 2>&1"`
-   #echo "$execstr_precmd duplicity $execstr_options collection-status $execstr_serverpart" >$outputfile
    exit_code=$?
    echo -n $outputfile
 
