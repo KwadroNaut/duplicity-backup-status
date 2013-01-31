@@ -11,10 +11,10 @@ Make sure you have python-argparse installed (yes an extra dependency, getopt do
 
 Run the python script from your nagios. Don't forget to specify some extras like when warnings or criticalities should be emerged.
 
--  -w WARNINC   Number of hours allowed for incremential backup warning level default 28
--  -W WARNFULL  Number of hours allowed for incremential backup critical level default 40
--  -c CRITINC   Number of days allowed for full backup warning level default 52
--  -C CRITFULL  Number of days allowed for full backup critical level default 60
+-   -w WARNINC   Number of hours allowed for incremential backup warning level default 28
+-   -W WARNFULL  Number of days allowed for full backup warning level default 31
+-   -c CRITINC   Number of hours allowed for incremential backup critical level default 52
+-   -C CRITFULL  Number of days allowed for full backup critical level default 33
 
 
 ## TODO:
